@@ -1,8 +1,8 @@
 <template>
   <div>
     <table class="centered">
-      <tr v-for="(_, y) in size">
-        <td v-for="(_, x) in size"
+      <tr v-for="(_, y) in height">
+        <td v-for="(_, x) in width"
             :class="{ alive: cells[idx(x,y)], dead: !cells[idx(x,y)] }"
         ></td>
       </tr>
@@ -26,8 +26,8 @@
         ></condition-input>
       </div>
       <table class="centered">
-        <tr v-for="(_, y) in size">
-          <td v-for="(_, x) in size"
+        <tr v-for="(_, y) in height">
+          <td v-for="(_, x) in width"
               :class="{ alive: seed[idx(x,y)], dead: !seed[idx(x,y)] }"
               class="editable"
               v-on:mousedown="flip('seed', x,y)"
@@ -49,35 +49,17 @@
    data: function () {
      return {
        seed: undefined,
-       size: undefined,
+       height: undefined,
+       width: undefined,
        edit: false,
        turnTime: 200,
        timer: undefined,
-       cells: undefined,
-       textSeed: `
-         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-         _ _ _ _ _ _ x _ _ _ x _ _ _ _ _ _
-         _ _ _ _ _ _ x x x x x _ _ _ _ _ _
-         _ _ _ _ _ _ _ x x x _ _ _ _ _ _ _
-         _ _ _ _ _ _ _ _ x _ _ _ _ _ _ _ _
-         _ _ _ _ _ _ x _ _ _ x _ _ _ _ _ _
-         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-       `
+       cells: undefined
      }
    },
    methods: {
      idx: function (x, y) {
-       return y * this.size + x;
+       return y * this.width + x;
      },
      flip: function (array, x, y) {
        var idx = this.idx(x,y);
@@ -89,32 +71,30 @@
          for (var dx = -1; dx <= 1; ++dx) {
            var nx = x + dx;
            var ny = y + dy;
-           if (nx >= 0 && nx < this.size &&
-               ny >= 0 && ny < this.size &&
+           if (nx >= 0 && nx < this.width &&
+               ny >= 0 && ny < this.height &&
                (dx != 0 || dy != 0)) {
              if (this.cells[this.idx(nx,ny)]) {
-              ++neighbors;
+               ++neighbors;
              }
            }
          }
        }
        return neighbors;
      },
-     alive: function (x, y) {
-       var neighbors = this.countNeightbors(x,y)
+     isAlive: function (x, y) {
+       var neighbors = this.countNeightbors(x,y);
        if (this.cells[this.idx(x,y)]) {
-         /* Survival */
          return this.survivalCondition.includes(neighbors);
        } else {
-         /* Birth */
          return this.birthCondition.includes(neighbors);
        }
      },
      nextTurn: function () {
-       var nextCells = new Array(this.size2);
-       for (var y = 0; y < this.size; ++y) {
-         for (var x = 0; x < this.size; ++x) {
-           nextCells[this.idx(x,y)] = this.alive(x,y);
+       var nextCells = new Array(this.cells.length);
+       for (var y = 0; y < this.height; ++y) {
+         for (var x = 0; x < this.width; ++x) {
+           nextCells[this.idx(x,y)] = this.isAlive(x,y);
          }
        }
        this.cells = nextCells;
@@ -126,12 +106,32 @@
        }
 
        if (!this.seed) {
-         this.seed = this.textSeed.split('')
-                         .filter(cell =>
-                           cell == '_' || cell == 'x')
-                         .map(cell => cell == 'x');
+         var textSeed = `
+           _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+           _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+           _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+           _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+           _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+           _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+           _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+           _ _ _ _ _ _ x _ _ _ x _ _ _ _ _ _
+           _ _ _ _ _ _ x x x x x _ _ _ _ _ _
+           _ _ _ _ _ _ _ x x x _ _ _ _ _ _ _
+           _ _ _ _ _ _ _ _ x _ _ _ _ _ _ _ _
+           _ _ _ _ _ _ x _ _ _ x _ _ _ _ _ _
+           _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+           _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+           _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+           _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+           _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+         `;
+         this.seed = textSeed.split('')
+                             .filter(cell =>
+                               cell == '_' || cell == 'x')
+                             .map(cell => cell == 'x');
        }
-       this.size = Math.sqrt(this.seed.length);
+       this.width = Math.sqrt(this.seed.length);
+       this.height = this.width;
 
        this.cells = this.seed;
        this.timer = setTimeout(() => this.nextTurn(), 1000);
@@ -141,9 +141,6 @@
      this.reseed();
    },
    computed: {
-     size2: function () {
-       return this.size * this.size;
-     },
      survivalCondition: function () {
        if (this.edit) {
          return this.$refs.conditions.value.survival;
