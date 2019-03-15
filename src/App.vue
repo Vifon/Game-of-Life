@@ -1,12 +1,14 @@
 <template>
   <div>
-    <table class="centered">
-      <tr v-for="(_, y) in height">
-        <td v-for="(_, x) in width"
-            :class="{ alive: cells[idx(x,y)], dead: !cells[idx(x,y)] }"
-        ></td>
-      </tr>
-    </table>
+    <div class="board">
+      <div v-for="(_, y) in height"
+           class="row">
+        <div v-for="(_, x) in width"
+             class="col"
+             :class="{ alive: cells[idx(x,y)], dead: !cells[idx(x,y)] }"
+        ></div>
+      </div>
+    </div>
 
     <div class="controls">
       <input id="edit" name="edit" type="button" value="Edit"
@@ -25,15 +27,17 @@
                          class="control"
         ></condition-input>
       </div>
-      <table class="centered">
-        <tr v-for="(_, y) in height">
-          <td v-for="(_, x) in width"
-              :class="{ alive: seed[idx(x,y)], dead: !seed[idx(x,y)] }"
-              class="editable"
-              v-on:mousedown="flip('seed', x,y)"
-          ></td>
-        </tr>
-      </table>
+
+      <div class="board">
+        <div v-for="(_, y) in height"
+             class="row">
+          <div v-for="(_, x) in width"
+               class="col editable"
+               :class="{ alive: seed[idx(x,y)], dead: !seed[idx(x,y)] }"
+               v-on:mousedown="flip('seed', x,y)"
+          ></div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -166,13 +170,16 @@
    -moz-osx-font-smoothing: grayscale;
    margin-top: 60px;
  }
+
  .block {
    display: block;
  }
+
  .centered {
    margin-left: auto;
    margin-right: auto;
  }
+
  .controls {
    display: flex;
    justify-content: center;
@@ -180,18 +187,30 @@
  .control {
    margin: 2px;
  }
- td {
+
+ .board {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+ }
+ .row {
+   display: flex;
+   flex-direction: row;
+ }
+ .col {
    min-width: 20px;
    width: 20px;
    height: 20px;
    border: 1px #eee solid;
  }
+
  .alive {
    background-color: black;
  }
  .dead {
    background-color: white;
  }
+
  .editable {
    opacity: 0.7;
  }
