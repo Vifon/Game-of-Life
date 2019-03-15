@@ -17,7 +17,7 @@
    },
    computed: {
      value: function () {
-       var stringToInts = (s) => s.split('').map(x => parseInt(x));
+       var stringToInts = s => s.split('').map(x => parseInt(x));
 
        var s = this.raw_value;
        var pos = s.indexOf('/');
