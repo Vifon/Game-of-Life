@@ -35,4 +35,7 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+ input[type=text] {
+   text-align: center;
+ }
 </style>

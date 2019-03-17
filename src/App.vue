@@ -10,15 +10,15 @@
       </div>
     </div>
 
-    <div class="controls">
+    <div class="controls"
+         v-if="!edit">
       <input id="edit" name="edit" type="button" value="Edit"
              class="control"
-             v-if="!edit"
              v-on:click="edit = true"
       />
     </div>
-    <div id="inputs" v-if="edit">
-      <div class="controls centered">
+    <div v-else>
+      <div class="controls">
         <input id="reseed" name="reseed" type="button" value="Reseed"
                class="control"
                v-on:click="reseed"
@@ -133,9 +133,9 @@
                              .filter(cell =>
                                cell == '_' || cell == 'x')
                              .map(cell => cell == 'x');
+         this.width = Math.sqrt(this.seed.length);
+         this.height = this.width;
        }
-       this.width = Math.sqrt(this.seed.length);
-       this.height = this.width;
 
        this.cells = this.seed;
        this.timer = setTimeout(() => this.nextTurn(), 1000);
@@ -169,15 +169,6 @@
    -webkit-font-smoothing: antialiased;
    -moz-osx-font-smoothing: grayscale;
    margin-top: 60px;
- }
-
- .block {
-   display: block;
- }
-
- .centered {
-   margin-left: auto;
-   margin-right: auto;
  }
 
  .controls {
