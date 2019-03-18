@@ -42,8 +42,8 @@
       <game-board :seed="seed"
                   ref="seed"
                   class="editable"
-                  v-on:mousedown="selectionStart($event)"
-                  v-on:mouseup="selectionEnd($event)"
+                  v-on:mousedown="selectionStart"
+                  v-on:mouseup="selectionEnd"
       >
       </game-board>
     </div>
