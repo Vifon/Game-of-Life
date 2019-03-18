@@ -1,14 +1,10 @@
 <template>
   <div>
-    <div class="board">
-      <div v-for="(_, y) in height"
-           class="row">
-        <div v-for="(_, x) in width"
-             class="col"
-             :class="{ alive: cells[idx(x,y)], dead: !cells[idx(x,y)] }"
-        ></div>
-      </div>
-    </div>
+    <game-board :cells="cells"
+                :width="width"
+                :height="height"
+    >
+    </game-board>
 
     <div class="controls"
          v-if="!edit">
@@ -28,27 +24,26 @@
         ></condition-input>
       </div>
 
-      <div class="board">
-        <div v-for="(_, y) in height"
-             class="row">
-          <div v-for="(_, x) in width"
-               class="col editable"
-               :class="{ alive: seed[idx(x,y)], dead: !seed[idx(x,y)] }"
-               v-on:mousedown="flip('seed', x,y)"
-          ></div>
-        </div>
-      </div>
+      <game-board :cells="seed"
+                  :width="width"
+                  :height="height"
+                  class="editable"
+                  v-on:click="flip('seed', $event)"
+      >
+      </game-board>
     </div>
   </div>
 </template>
 
 <script>
  import ConditionInput from './components/ConditionInput.vue'
+ import GameBoard from './components/GameBoard.vue'
 
  export default {
    name: 'app',
    components: {
-     ConditionInput
+     ConditionInput,
+     GameBoard
    },
    data: function () {
      return {
@@ -65,9 +60,8 @@
      idx: function (x, y) {
        return y * this.width + x;
      },
-     flip: function (array, x, y) {
-       var idx = this.idx(x,y);
-       this[array][idx] = !this[array][idx];
+     flip: function (array, event) {
+       this.$set(this[array], event.index, !this[array][event.index]);
      },
      countNeightbors: function (x, y) {
        var neighbors = 0;
@@ -177,29 +171,6 @@
  }
  .control {
    margin: 2px;
- }
-
- .board {
-   display: flex;
-   flex-direction: column;
-   align-items: center;
- }
- .row {
-   display: flex;
-   flex-direction: row;
- }
- .col {
-   min-width: 20px;
-   width: 20px;
-   height: 20px;
-   border: 1px #eee solid;
- }
-
- .alive {
-   background-color: black;
- }
- .dead {
-   background-color: white;
  }
 
  .editable {
