@@ -19,10 +19,24 @@
                class="control"
                v-on:click="reseed"
         />
+        <input id="clear" name="clear" type="button" value="Clear"
+               class="control"
+               v-on:click="clear"
+        />
         <condition-input ref="conditions"
                          v-model="conditions"
                          class="control"
         ></condition-input>
+      </div>
+
+      <div class="controls">
+        <size-input value="17"
+                    v-on:input="$refs.seed.resize($event, null)"
+        ></size-input>
+        <span>x</span>
+        <size-input value="17"
+                    v-on:input="$refs.seed.resize(null, $event)"
+        ></size-input>
       </div>
 
       <game-board :seed="seed"
@@ -38,12 +52,14 @@
 <script>
  import ConditionInput from './components/ConditionInput.vue'
  import GameBoard from './components/GameBoard.vue'
+ import SizeInput from './components/SizeInput.vue'
 
  export default {
    name: 'app',
    components: {
      ConditionInput,
-     GameBoard
+     GameBoard,
+     SizeInput
    },
    data: function () {
      return {
@@ -77,6 +93,9 @@
        );
 
        this.timer = setTimeout(() => this.nextTurn(), 1000);
+     },
+     clear: function () {
+       this.$refs.seed.clear();
      }
    },
    created: function () {

@@ -1,6 +1,9 @@
 <template>
   <div class="condition-input">
-    <input type="text" v-model="raw_value" size=20>
+    <input type="text" size=20
+           :value="asString"
+           v-on:input="$emit('input', asObject($event.target.value))"
+    >
   </div>
 </template>
 
@@ -8,22 +11,23 @@
  export default {
    name: 'ConditionInput',
    props: {
-     initial: String
+     value: Object
    },
    data: function () {
      return {
-       raw_value: this.initial
+       asString: (this.value.survival.join("")
+                + "/"
+                + this.value.birth.join(""))
      };
    },
-   computed: {
-     value: function () {
+   methods: {
+     asObject: function (str) {
        var stringToInts = s => s.split('').map(x => parseInt(x));
 
-       var s = this.raw_value;
-       var pos = s.indexOf('/');
+       var pos = str.indexOf('/');
 
        var [survival, birth] =
-         [s.slice(0, pos), s.slice(pos+1)].map(stringToInts);
+         [str.slice(0, pos), str.slice(pos+1)].map(stringToInts);
        return {
          survival: survival,
          birth: birth

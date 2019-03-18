@@ -16,14 +16,23 @@
 <script>
  export default {
    name: 'GameBoard',
-   props: ['cells', 'width', 'height'],
+   props: {
+     seed: Array,
+     conditions: Object
+   },
+   data: function () {
+     return {
+       cells: this.seed.slice(),
+       width: Math.sqrt(this.seed.length),
+       height: Math.sqrt(this.seed.length)
+     }
+   },
    methods: {
      idx: function (x, y) {
        return y * this.width + x;
      },
-     flip: function (array, x, y) {
-       var idx = this.idx(x,y);
-       this[array][idx] = !this[array][idx];
+     flip: function (index) {
+       this.$set(this.cells, index, !this.cells[index]);
      },
      countNeightbors: function (x, y) {
        var neighbors = 0;
@@ -44,11 +53,67 @@
      },
      isAlive: function (x, y) {
        var neighbors = this.countNeightbors(x,y);
+
        if (this.cells[this.idx(x,y)]) {
-         return this.$root.survivalCondition.includes(neighbors);
+         return this.conditions.survival.includes(neighbors);
        } else {
-         return this.$root.birthCondition.includes(neighbors);
+         return this.conditions.birth.includes(neighbors);
        }
+     },
+     nextTurn: function () {
+       var nextCells = new Array(this.cells.length);
+       for (var y = 0; y < this.height; ++y) {
+         for (var x = 0; x < this.width; ++x) {
+           nextCells[this.idx(x,y)] = this.isAlive(x,y);
+         }
+       }
+       this.cells = nextCells;
+     },
+     reseed: function (seed, width, height) {
+       this.cells = seed;
+       this.width = width;
+       this.height = height;
+     },
+     resize: function(newWidth, newHeight) {
+       if (newWidth !== null) {
+         for (var y of Array(this.height).keys()) {
+           var row = (this.height - y);
+           if (newWidth > this.width) {
+             this.cells.splice(
+               row * this.width,
+               0,
+               ... new Array(newWidth - this.width).fill(false)
+             );
+           } else {
+             var difference = this.width - newWidth;
+             this.cells.splice(
+               row * this.width - difference,
+               this.width - newWidth
+             );
+           }
+         }
+         this.width = newWidth;
+       }
+       if (newHeight !== null) {
+         if (newHeight > this.height) {
+           var difference = newHeight - this.height;
+           this.cells.splice(
+             this.width * this.height,
+             0,
+             ... new Array(
+               this.width * difference).fill(false)
+           );
+         } else {
+           var difference = this.height - newHeight;
+           var size = this.height * this.width;
+           var discardRowStart = size - this.width * difference;
+           this.cells.splice(discardRowStart);
+         }
+         this.height = newHeight;
+       }
+     },
+     clear: function() {
+       this.cells = new Array(this.cells.length).fill(false);
      }
    }
  }
