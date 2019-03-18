@@ -155,6 +155,7 @@
    display: flex;
    flex-direction: column;
    align-items: center;
+   user-select: none;
  }
  .row {
    display: flex;
