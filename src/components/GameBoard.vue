@@ -7,7 +7,8 @@
            :key="`col-${x}`"
            class="col"
            :class="{ alive: cells[idx(x,y)], dead: !cells[idx(x,y)] }"
-           v-on:click="$emit('click', {index: idx(x,y)})"
+           v-on:mousedown="$emit('mousedown', {index: idx(x,y)})"
+           v-on:mouseup="$emit('mouseup', {index: idx(x,y)})"
       ></div>
     </div>
   </div>
@@ -31,8 +32,29 @@
      idx: function (x, y) {
        return y * this.width + x;
      },
-     flip: function (index) {
-       this.$set(this.cells, index, !this.cells[index]);
+     flip: function (selection) {
+       var xParams = [
+         selection.start % this.width,
+         selection.end % this.width
+       ];
+       var yParams = [
+         Math.floor(selection.start / this.width),
+         Math.floor(selection.end / this.width)
+       ];
+       var start = {
+         x: Math.min(...xParams),
+         y: Math.min(...yParams)
+       };
+       var end = {
+         x: Math.max(...xParams),
+         y: Math.max(...yParams)
+       };
+
+       for (var y = start.y; y <= end.y; ++y) {
+         for (var x = start.x; x <= end.x; ++x) {
+           this.$set(this.cells, this.idx(x,y), selection.value);
+         }
+       }
      },
      countNeightbors: function (x, y) {
        var neighbors = 0;

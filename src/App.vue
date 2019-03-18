@@ -42,7 +42,8 @@
       <game-board :seed="seed"
                   ref="seed"
                   class="editable"
-                  v-on:click="flip($event)"
+                  v-on:mousedown="selectionStart($event)"
+                  v-on:mouseup="selectionEnd($event)"
       >
       </game-board>
     </div>
@@ -70,12 +71,22 @@
        },
        edit: false,
        turnTime: 200,
-       timer: null
+       timer: null,
+       selection: {
+         start: null,
+         end: null,
+         value: null
+       }
      }
    },
    methods: {
-     flip: function (event) {
-       this.$refs.seed.flip(event.index);
+     selectionStart: function (event) {
+       this.selection.start = event.index;
+       this.selection.value = !this.$refs.seed.cells[event.index];
+     },
+     selectionEnd: function (event) {
+       this.selection.end = event.index;
+       this.$refs.seed.flip(this.selection);
      },
      nextTurn: function () {
        this.$refs.game.nextTurn();
