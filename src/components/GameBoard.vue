@@ -75,6 +75,7 @@
        this.height = height;
      },
      resize: function(newWidth, newHeight) {
+       var difference;
        if (newWidth !== null) {
          for (var y of Array(this.height).keys()) {
            var row = (this.height - y);
@@ -85,7 +86,7 @@
                ... new Array(newWidth - this.width).fill(false)
              );
            } else {
-             var difference = this.width - newWidth;
+             difference = this.width - newWidth;
              this.cells.splice(
                row * this.width - difference,
                this.width - newWidth
@@ -96,7 +97,7 @@
        }
        if (newHeight !== null) {
          if (newHeight > this.height) {
-           var difference = newHeight - this.height;
+           difference = newHeight - this.height;
            this.cells.splice(
              this.width * this.height,
              0,
@@ -104,7 +105,7 @@
                this.width * difference).fill(false)
            );
          } else {
-           var difference = this.height - newHeight;
+           difference = this.height - newHeight;
            var size = this.height * this.width;
            var discardRowStart = size - this.width * difference;
            this.cells.splice(discardRowStart);
