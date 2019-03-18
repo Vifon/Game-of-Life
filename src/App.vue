@@ -7,13 +7,13 @@
     </game-board>
 
     <div class="controls"
-         v-show="!edit">
+         v-if="!edit">
       <input id="edit" name="edit" type="button" value="Edit"
              class="control"
              v-on:click="edit = true"
       />
     </div>
-    <div v-show="edit">
+    <div v-else>
       <div class="controls">
         <input id="reseed" name="reseed" type="button" value="Reseed"
                class="control"
@@ -124,7 +124,7 @@
                          .map(cell => cell == 'x');
    },
    mounted: function () {
-     this.reseed();
+     this.timer = setTimeout(() => this.nextTurn(), 1000);
    }
  }
 </script>
