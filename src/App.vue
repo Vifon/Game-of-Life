@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="app">
     <game-board :seed="seed"
                 :conditions="conditions"
                 ref="game"
