@@ -28,7 +28,7 @@
       <game-board :seed="seed"
                   ref="seed"
                   class="editable"
-                  v-on:click="flip('seed', $event)"
+                  v-on:click="flip($event)"
       >
       </game-board>
     </div>
@@ -58,7 +58,7 @@
      }
    },
    methods: {
-     flip: function (array, event) {
+     flip: function (event) {
        this.$refs.seed.flip(event.index);
      },
      nextTurn: function () {
