@@ -1,32 +1,32 @@
 <template>
   <div>
-    <game-board :cells="cells"
-                :width="width"
-                :height="height"
+    <game-board :seed="seed"
+                :conditions="conditions"
+                ref="game"
     >
     </game-board>
 
     <div class="controls"
-         v-if="!edit">
+         v-show="!edit">
       <input id="edit" name="edit" type="button" value="Edit"
              class="control"
              v-on:click="edit = true"
       />
     </div>
-    <div v-else>
+    <div v-show="edit">
       <div class="controls">
         <input id="reseed" name="reseed" type="button" value="Reseed"
                class="control"
                v-on:click="reseed"
         />
-        <condition-input ref="conditions" initial="23/3"
+        <condition-input ref="conditions"
+                         v-model="conditions"
                          class="control"
         ></condition-input>
       </div>
 
-      <game-board :cells="seed"
-                  :width="width"
-                  :height="height"
+      <game-board :seed="seed"
+                  ref="seed"
                   class="editable"
                   v-on:click="flip('seed', $event)"
       >
@@ -48,54 +48,21 @@
    data: function () {
      return {
        seed: undefined,
-       height: undefined,
-       width: undefined,
+       conditions: {
+         birth: [3],
+         survival: [2, 3]
+       },
        edit: false,
        turnTime: 200,
-       timer: undefined,
-       cells: undefined
+       timer: null
      }
    },
    methods: {
-     idx: function (x, y) {
-       return y * this.width + x;
-     },
      flip: function (array, event) {
-       this.$set(this[array], event.index, !this[array][event.index]);
-     },
-     countNeightbors: function (x, y) {
-       var neighbors = 0;
-       for (var dy = -1; dy <= 1; ++dy) {
-         for (var dx = -1; dx <= 1; ++dx) {
-           var nx = x + dx;
-           var ny = y + dy;
-           if (nx >= 0 && nx < this.width &&
-               ny >= 0 && ny < this.height &&
-               (dx != 0 || dy != 0)) {
-             if (this.cells[this.idx(nx,ny)]) {
-               ++neighbors;
-             }
-           }
-         }
-       }
-       return neighbors;
-     },
-     isAlive: function (x, y) {
-       var neighbors = this.countNeightbors(x,y);
-       if (this.cells[this.idx(x,y)]) {
-         return this.survivalCondition.includes(neighbors);
-       } else {
-         return this.birthCondition.includes(neighbors);
-       }
+       this.$refs.seed.flip(event.index);
      },
      nextTurn: function () {
-       var nextCells = new Array(this.cells.length);
-       for (var y = 0; y < this.height; ++y) {
-         for (var x = 0; x < this.width; ++x) {
-           nextCells[this.idx(x,y)] = this.isAlive(x,y);
-         }
-       }
-       this.cells = nextCells;
+       this.$refs.game.nextTurn();
        this.timer = setTimeout(() => this.nextTurn(), this.turnTime);
      },
      reseed: function () {
@@ -103,8 +70,17 @@
          clearTimeout(this.timer);
        }
 
-       if (!this.seed) {
-         var textSeed = `
+       this.$refs.game.reseed(
+         this.$refs.seed.cells,
+         this.$refs.seed.width,
+         this.$refs.seed.height
+       );
+
+       this.timer = setTimeout(() => this.nextTurn(), 1000);
+     }
+   },
+   created: function () {
+     var textSeed = `
            _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
            _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
            _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
@@ -122,37 +98,14 @@
            _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
            _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
            _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-         `;
-         this.seed = textSeed.split('')
-                             .filter(cell =>
-                               cell == '_' || cell == 'x')
-                             .map(cell => cell == 'x');
-         this.width = Math.sqrt(this.seed.length);
-         this.height = this.width;
-       }
-
-       this.cells = this.seed;
-       this.timer = setTimeout(() => this.nextTurn(), 1000);
-     }
+     `;
+     this.seed = textSeed.split('')
+                         .filter(cell =>
+                           cell == '_' || cell == 'x')
+                         .map(cell => cell == 'x');
    },
    mounted: function () {
      this.reseed();
-   },
-   computed: {
-     survivalCondition: function () {
-       if (this.edit) {
-         return this.$refs.conditions.value.survival;
-       } else {
-         return [2, 3];
-       }
-     },
-     birthCondition: function () {
-       if (this.edit) {
-         return this.$refs.conditions.value.birth;
-       } else {
-         return [3];
-       }
-     }
    }
  }
 </script>
