@@ -73,7 +73,7 @@
        }
        return neighbors;
      },
-     isAlive: function (x, y) {
+     willLive: function (x, y) {
        var neighbors = this.countNeightbors(x,y);
 
        if (this.cells[this.idx(x,y)]) {
@@ -86,7 +86,7 @@
        var nextCells = new Array(this.cells.length);
        for (var y = 0; y < this.height; ++y) {
          for (var x = 0; x < this.width; ++x) {
-           nextCells[this.idx(x,y)] = this.isAlive(x,y);
+           nextCells[this.idx(x,y)] = this.willLive(x,y);
          }
        }
        this.cells = nextCells;
